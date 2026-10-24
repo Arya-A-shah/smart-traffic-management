@@ -1,0 +1,5 @@
+# Backend for the Godot game
+matplotlib
+numpy
+# optional, for the "RL agent (PPO)" algorithm:
+# torch

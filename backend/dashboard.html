@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Traffic Dashboard</title>
+<style>
+  :root { --bg:#0b1220; --card:#111827; --line:#1f2937; --fg:#e5e7eb; --mute:#9ca3af;
+          --green:#34d399; --red:#ef4444; --amber:#f59e0b; --blue:#60a5fa; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  header { padding:20px 28px 8px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; }
+  h1 { font-size:22px; margin:0; }
+  h2 { font-size:16px; margin:0 0 10px; color:#cbd5e1; font-weight:600; }
+  .mute { color:var(--mute); font-size:13px; }
+  main { padding:8px 28px 40px; display:grid; gap:18px; max-width:1300px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
+  .kpi b { display:block; font-size:26px; font-variant-numeric:tabular-nums; }
+  .kpi span { color:var(--mute); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:900px){ .row { grid-template-columns:1fr; } main, header { padding-left:14px; padding-right:14px; } }
+  img { width:100%; border-radius:8px; display:block; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  td, th { padding:6px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+  th { color:var(--mute); font-weight:500; }
+  .tag { padding:1px 7px; border-radius:99px; font-size:11px; font-weight:600; }
+  .emergency { background:#7f1d1d; color:#fecaca; } .algorithm { background:#1e3a8a; color:#bfdbfe; } .min_green { background:#374151; }
+  button { background:#1f2937; color:var(--fg); border:1px solid #374151; border-radius:8px; padding:7px 12px; cursor:pointer; font:inherit; font-size:13px; }
+  button:hover { border-color:var(--blue); }
+  .algos { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; }
+  .algo h3 { margin:0 0 4px; font-size:15px; } .algo p { margin:0; color:#cbd5e1; font-size:13px; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
+  #status { font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🚦 Smart Traffic — live dashboard</h1>
+  <span id="status" class="mute">connecting…</span>
+</header>
+<main>
+  <div class="kpis">
+    <div class="kpi"><span>Algorithm</span><b id="k_algo" style="font-size:18px">–</b></div>
+    <div class="kpi"><span>Sim time</span><b id="k_time">–</b></div>
+    <div class="kpi"><span>Vehicles passed</span><b id="k_passed">–</b></div>
+    <div class="kpi"><span>Avg wait (s)</span><b id="k_wait">–</b></div>
+    <div class="kpi"><span>Ambulance wait (s)</span><b id="k_amb" style="color:#fca5a5">–</b></div>
+    <div class="kpi"><span>Longest queue</span><b id="k_q">–</b></div>
+  </div>
+
+  <div class="row">
+    <div class="card"><h2>Live queues</h2><img id="img_q" alt="Queue length per approach over time"></div>
+    <div class="card"><h2>Waiting time by vehicle type</h2><img id="img_w" alt="Average wait by vehicle type"></div>
+  </div>
+
+  <div class="card">
+    <h2>Why the signal changed (latest first)</h2>
+    <table><thead><tr><th style="width:70px">t (s)</th><th style="width:80px">green</th><th style="width:110px">by</th><th>reason</th></tr></thead>
+      <tbody id="dec"></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Your game runs compared</h2>
+    <p class="mute" style="margin-top:-6px">Every time you press Start in the game a new run is recorded. Play the same scenario with each algorithm to compare them.</p>
+    <img id="img_runs" alt="Comparison of game runs">
+    <table style="margin-top:10px"><thead><tr><th>#</th><th>algorithm</th><th>amb. rule</th><th>sim time</th><th>passed</th><th>avg wait</th><th>ambulance wait</th><th>longest queue</th><th>saved in</th></tr></thead><tbody id="runs"></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Quick fair comparison (same traffic, every algorithm)</h2>
+    <p class="mute" style="margin-top:-6px">Replays your last scenario for 5 simulated minutes under each algorithm with the fast queue model.</p>
+    <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap">
+      <button onclick="cmp(1)">Run comparison (ambulance rule ON)</button>
+      <button onclick="cmp(0)">Run comparison (ambulance rule OFF)</button>
+    </div>
+    <img id="img_cmp" alt="Algorithm comparison" style="display:none">
+  </div>
+
+  <div class="card">
+    <h2>The algorithms in one line each</h2>
+    <div class="algos" id="algos"></div>
+    <p class="mute" style="margin-top:12px">On top of every algorithm sits the same <b style="color:#fca5a5">ambulance rule</b>: if an ambulance is within 120 m, its approach gets green (after a safe yellow) and keeps it until the ambulance has passed.</p>
+  </div>
+</main>
+<script>
+const COLORS = {fixed:"#9ca3af", actuated:"#60a5fa", max_pressure:"#34d399", rl:"#f472b6"};
+const NAMES = ["North","East","South","West"];
+const f = (x, d=1) => x === null || x === undefined ? "–" : Number(x).toFixed(d);
+let lastT = -1;
+
+async function refresh() {
+  try {
+    const r = await fetch("/api/summary"); const s = await r.json();
+    document.getElementById("status").textContent = "● backend connected";
+    document.getElementById("status").style.color = "#34d399";
+    const c = s.current;
+    if (c) {
+      k_algo.textContent = c.algo_name + (c.ev_priority ? "" : " (no amb. rule)");
+      k_time.textContent = f(c.sim_time,0) + " s";
+      k_passed.textContent = c.vehicles_passed;
+      k_wait.textContent = f(c.avg_wait);
+      k_amb.textContent = f(c.amb_wait);
+      k_q.textContent = c.max_queue;
+      if (c.sim_time !== lastT) {
+        const ts = Date.now();
+        img_q.src = "/plot/queues.png?" + ts; img_w.src = "/plot/waits.png?" + ts; img_runs.src = "/plot/runs.png?" + ts;
+        lastT = c.sim_time;
+      }
+    }
+    dec.innerHTML = (s.decisions || []).map(d => `<tr><td>${f(d.t,0)}</td><td>${NAMES[d.phase]}</td><td><span class="tag ${d.source}">${d.source.replace("_"," ")}</span></td><td>${d.reason}</td></tr>`).join("") || `<tr><td colspan=4 class=mute>No decisions yet</td></tr>`;
+    runs.innerHTML = (s.runs || []).slice().reverse().map(r => `<tr><td>${r.run}</td><td><span class="dot" style="background:${COLORS[r.algo]}"></span>${r.algo_name}</td><td>${r.ev_priority ? "on" : "<b style='color:#fca5a5'>off</b>"}</td><td>${f(r.sim_time,0)} s</td><td>${r.vehicles_passed}</td><td>${f(r.avg_wait)}</td><td>${f(r.amb_wait)}</td><td>${r.max_queue}</td><td class=mute style="font-size:11px">${r.folder.split(/[\\/]/).slice(-2).join("/")}</td></tr>`).join("");
+  } catch (e) {
+    document.getElementById("status").textContent = "● backend not reachable";
+    document.getElementById("status").style.color = "#ef4444";
+  }
+}
+async function cmp(ev) {
+  img_cmp.style.display = "block"; img_cmp.style.opacity = .4;
+  img_cmp.src = `/plot/compare.png?refresh=1&ev=${ev}&t=${Date.now()}`;
+  img_cmp.onload = () => img_cmp.style.opacity = 1;
+}
+async function loadAlgos() {
+  try {
+    const s = await (await fetch("/api/status")).json();
+    algos.innerHTML = Object.entries(s.algorithms).map(([k,a]) => `<div class="card algo"><h3><span class="dot" style="background:${COLORS[k]}"></span>${a.name}</h3><p>${a.how}</p></div>`).join("");
+  } catch (e) {}
+}
+{ const ts = Date.now(); img_q.src = "/plot/queues.png?" + ts; img_w.src = "/plot/waits.png?" + ts; img_runs.src = "/plot/runs.png?" + ts; }
+loadAlgos(); refresh(); setInterval(refresh, 2000);
+</script>
+</body>
+</html>

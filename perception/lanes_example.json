@@ -1,0 +1,10 @@
+{
+  "_comment": "Lane regions in normalised image coordinates (0-1). Draw them for your own camera with: python -m perception.draw_lanes --source your_video.mp4",
+  "lanes": [
+    {"id": "south_in_1", "phase": 0, "approach": "South", "polygon": [[0.40, 1.00], [0.50, 1.00], [0.50, 0.55], [0.45, 0.55]]},
+    {"id": "south_in_2", "phase": 0, "approach": "South", "polygon": [[0.50, 1.00], [0.62, 1.00], [0.54, 0.55], [0.50, 0.55]]},
+    {"id": "west_in_1",  "phase": 1, "approach": "West",  "polygon": [[0.00, 0.55], [0.40, 0.50], [0.40, 0.58], [0.00, 0.70]]},
+    {"id": "north_in_1", "phase": 2, "approach": "North", "polygon": [[0.52, 0.00], [0.58, 0.00], [0.56, 0.45], [0.52, 0.45]]},
+    {"id": "east_in_1",  "phase": 3, "approach": "East",  "polygon": [[0.60, 0.42], [1.00, 0.35], [1.00, 0.48], [0.60, 0.50]]}
+  ]
+}

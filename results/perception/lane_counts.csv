@@ -1,0 +1,6 @@
+frame,id,phase,total,emergency
+0,south_in_1,0,0,0
+0,south_in_2,0,1,0
+0,west_in_1,1,0,0
+0,north_in_1,2,0,0
+0,east_in_1,3,0,0

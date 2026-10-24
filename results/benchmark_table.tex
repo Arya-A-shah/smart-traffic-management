@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+\caption{Evaluation of Traffic Control Systems across Held-Out Stochastic Demand Scenarios.}
+\label{tab:traffic_benchmarks}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+ & Wait Time (s) & Time Loss (s) & Queue (veh/lane) & Throughput (v/m) & EV Delay (s) & EV Stopped (s) & Ped Delay (s) & Fuel/veh (g) & CO2 (kg) \\
+\midrule
+Fixed-time & 80.540000 & 102.780000 & 1.310000 & 30.800000 & 94.130000 & 73.220000 & 39.390000 & 107.910000 & 629.450000 \\
+Actuated (sensor) & 47.240000 & 65.670000 & 0.780000 & 31.060000 & 61.930000 & 44.070000 & 39.340000 & 88.580000 & 518.750000 \\
+Max-pressure (rule-based) & 42.400000 & 61.250000 & 0.690000 & 31.050000 & 8.110000 & 0.000000 & 41.220000 & 86.580000 & 506.940000 \\
+MARL (no forecast) & 52.280000 & 69.030000 & 0.850000 & 30.910000 & 7.300000 & 0.000000 & 44.490000 & 89.300000 & 522.210000 \\
+MARL + forecast (proposed) & 55.680000 & 72.720000 & 0.910000 & 30.940000 & 9.130000 & 0.150000 & 46.410000 & 91.190000 & 533.860000 \\
+MARL + forecast, no safety layer & 56.610000 & 73.620000 & 0.930000 & 30.920000 & 61.340000 & 45.630000 & 48.350000 & 91.550000 & 535.500000 \\
+\bottomrule
+\end{tabular}
+\end{table}

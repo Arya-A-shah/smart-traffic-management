@@ -1,0 +1,15 @@
+# Template dataset config for emergency-vehicle fine-tuning (YOLO format).
+# Point `path` at your dataset folder containing images/ and labels/.
+path: /path/to/emergency_dataset
+train: train/images
+val: valid/images
+# optional adverse-condition validation set made with augment_weather.py
+# val_adverse: valid_adverse/images
+names:
+  0: car
+  1: motorcycle
+  2: bus
+  3: truck
+  4: ambulance
+  5: fire_truck
+  6: police

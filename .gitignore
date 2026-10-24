@@ -1,0 +1,10 @@
+.venv/
+venv_mac/
+__pycache__/
+.pytest_cache/
+.DS_Store
+game/.godot/
+backend/runs/
+runs/
+*.mp4
+results/_*.xml
